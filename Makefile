@@ -1,3 +1,6 @@
+BASE_DIR=../
+include Makefile.inc
+
 WCC=/opt/wasi-sdk/bin/clang
 WSYSROOT=/opt/wasi-sdk/share/wasi-sysroot/
 WCFLAGS += --target=wasm32-wasi
@@ -10,9 +13,17 @@ cifar10: ${C_SRC}
 cifar10.wasi: ${C_SRC}
 	${WCC} ${WCFLAGS} -std=c99 -DARM_MATH_CM3 -ICMSIS_5/CMSIS/DSP/Include -ICMSIS_5/CMSIS/Core/Include -ICMSIS_5/CMSIS/NN/Include -O3 -g3 -Wall -fmessage-length=0 -Wno-unused-function -Wno-unused-variable -o cifar10.wasi.out ${C_SRC} -Wl,--allow-undefined,-z,stack-size=524288,--no-threads,--stack-first,--no-entry,--export-all,--export=main --sysroot=${WSYSROOT}
 
+cifar10.sf: ${C_SRC}
+	mkdir -p ${TMP_DIR}
+	${WASMCC} ${WASMCFLAGS} ${OPTFLAGS} -std=c99 -DARM_MATH_CM3 -ICMSIS_5/CMSIS/DSP/Include -ICMSIS_5/CMSIS/Core/Include -ICMSIS_5/CMSIS/NN/Include -O3 -g3 -Wall -fmessage-length=0 -Wno-unused-function -Wno-unused-variable ${C_SRC} ${DUMMY} -o ${TMP_DIR}/cifar10.sf.out.wasm 
+	${SFCC} ${TMP_DIR}/cifar10.sf.out.wasm -o ${TMP_DIR}/cifar10.sf.out.bc
+	${CC} ${OPTFLAGS} -D${USE_MEM} ${TMP_DIR}/cifar10.sf.out.bc ${MEMC} ${RT_LIBC} ${RT_RT} -o ${TMP_DIR}/cifar10.sf.out
+	${CC} --shared -fPIC ${OPTFLAGS} -D${USE_MEM} -I${ART_INC} ${TMP_DIR}/cifar10.sf.out.bc ${AMEMC} ${WASMISA} -o ${TMP_DIR}/cifar10.awsm.so
+
 clean:
-	rm -f cifar10.out cifar10.wasi.out
+	rm -f cifar10.*
+	rm -rf tmp/
 
-all: clean cifar10 cifar10.wasi
+all: clean cifar10 cifar10.wasi cifar10.sf
 
-.PHONY: cifar10 cifar10.wasi clean all
+.PHONY: cifar10 cifar10.wasi cifar10.sf clean all
