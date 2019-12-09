@@ -102,6 +102,8 @@
 #endif
 #endif
 
+#include <sys/time.h>
+
 // include the input and weights
 
 static q7_t conv1_wt[CONV1_IM_CH * CONV1_KER_DIM * CONV1_KER_DIM * CONV1_OUT_CH] = CONV1_WT;
@@ -125,13 +127,26 @@ q7_t      col_buffer[2 * 5 * 5 * 32 * 2];
 
 q7_t      scratch_buffer[32 * 32 * 10 * 4];
 
+
+static
+double rtclock()
+{
+    struct timeval Tp;
+    int stat;
+    stat = gettimeofday (&Tp, NULL);
+    if (stat != 0)
+      printf ("Error return from gettimeofday: %d", stat);
+    return (Tp.tv_sec + Tp.tv_usec * 1.0e-6);
+}
+
 int main()
 {
+	double st = rtclock(), en = 0;
   #ifdef RTE_Compiler_EventRecorder
   EventRecorderInitialize (EventRecordAll, 1);  // initialize and start Event Recorder
   #endif
 
-  printf("start execution\n");
+  //printf("start execution\n");
   /* start the execution */
 
   q7_t     *img_buffer1 = scratch_buffer;
@@ -187,19 +202,21 @@ int main()
 
   arm_softmax_q7(output_data, 10, output_data);
 
+  en = rtclock();
   int x = 0;
   int y = 0;
 
   for (int i = 0; i < 10; i++)
   {
-      printf("%d: %d\n", i, output_data[i]);
+      fprintf(stderr, "%d: %d\n", i, output_data[i]);
       if (output_data[i] > x) {
     	x = output_data[i];
         y = i;
       }
   }
 
-  printf("%d, %d\n", x, y);
+  fprintf(stderr, "%d, %d\n", x, y);
+  printf("%0.6f\n", en - st);
 
-  return 0;
+  return y > 0 ? 0 : -1;
 }
