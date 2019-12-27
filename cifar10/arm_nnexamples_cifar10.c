@@ -119,7 +119,8 @@ static q7_t ip1_wt[IP1_DIM * IP1_OUT] = IP1_WT;
 static q7_t ip1_bias[IP1_OUT] = IP1_BIAS;
 
 /* Here the image_data should be the raw uint8 type RGB image in [RGB, RGB, RGB ... RGB] format */
-uint8_t   image_data[CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM] = IMG_DATA;
+uint8_t   image_data[CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM];
+//uint8_t   image_data[CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM] = IMG_DATA;
 q7_t      output_data[IP1_OUT];
 
 //vector buffer: max(im2col buffer,average pool buffer, fully connected buffer)
@@ -141,10 +142,18 @@ double rtclock()
 
 int main()
 {
-	double st = rtclock(), en = 0;
+//	double st = rtclock(), en = 0;
   #ifdef RTE_Compiler_EventRecorder
   EventRecorderInitialize (EventRecordAll, 1);  // initialize and start Event Recorder
   #endif
+
+//  printf("%d\n", CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM);
+//
+  int r = read(0, image_data, CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM), i;
+  if (r <= 0) {
+	  perror("read");
+	  return 0;
+  }
 
   //printf("start execution\n");
   /* start the execution */
@@ -202,21 +211,30 @@ int main()
 
   arm_softmax_q7(output_data, 10, output_data);
 
-  en = rtclock();
-  int x = 0;
-  int y = 0;
-
-  for (int i = 0; i < 10; i++)
-  {
-      fprintf(stderr, "%d: %d\n", i, output_data[i]);
-      if (output_data[i] > x) {
-    	x = output_data[i];
-        y = i;
-      }
+ // en = rtclock();
+//  int x = 0;
+//  int y = 0;
+//
+//  for (int i = 0; i < 10; i++)
+//  {
+//      fprintf(stderr, "%d: %d\n", i, output_data[i]);
+//      if (output_data[i] > x) {
+//    	x = output_data[i];
+//        y = i;
+//      }
+//  }
+  int max_val = -128, max_ind = 0;
+  for (int i = 0; i < IP1_OUT; i++) {
+     //printf("%d: %d\n", i, output_data[i]);
+     if (max_val < output_data[i]) {
+	max_val = output_data[i];
+	max_ind = i;
+     }
   }
 
-  fprintf(stderr, "%d, %d\n", x, y);
-  printf("%0.6f\n", en - st);
+  printf("(%d, %d)\n", max_ind, max_val);
+  //fprintf(stderr, "%d, %d\n", x, y);
+//  printf("%0.6f\n", en - st);
 
-  return y > 0 ? 0 : -1;
+  return 0;
 }
