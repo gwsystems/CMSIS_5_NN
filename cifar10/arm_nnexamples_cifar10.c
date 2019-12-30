@@ -211,7 +211,7 @@ int main()
 
   arm_softmax_q7(output_data, 10, output_data);
 
- // en = rtclock();
+//  en = rtclock();
 //  int x = 0;
 //  int y = 0;
 //
@@ -232,7 +232,7 @@ int main()
      }
   }
 
-  printf("(%d, %d)\n", max_ind, max_val);
+  fprintf(stderr, "(%d, %d)\n", max_ind, max_val);
   //fprintf(stderr, "%d, %d\n", x, y);
 //  printf("%0.6f\n", en - st);
 
