@@ -119,8 +119,10 @@ static q7_t ip1_wt[IP1_DIM * IP1_OUT] = IP1_WT;
 static q7_t ip1_bias[IP1_OUT] = IP1_BIAS;
 
 /* Here the image_data should be the raw uint8 type RGB image in [RGB, RGB, RGB ... RGB] format */
-uint8_t   image_data[CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM];
-//uint8_t   image_data[CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM] = IMG_DATA;
+/* place holder for input. unfortunately cannot get this program to classify correctly the png files from cifar10. Runyu says, we need some special format here, not sure what! They seem to have not verified the output. 
+ * It is unclear what IMG_DATA represents and if this program does it right. */
+uint8_t   image_data1[CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM];
+uint8_t   image_data[CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM] = IMG_DATA;
 q7_t      output_data[IP1_OUT];
 
 //vector buffer: max(im2col buffer,average pool buffer, fully connected buffer)
@@ -149,7 +151,7 @@ int main()
 
 //  printf("%d\n", CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM);
 //
-  int r = read(0, image_data, CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM), i;
+  int r = read(0, image_data1, CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM), i;
   if (r <= 0) {
 	  perror("read");
 	  return 0;
@@ -232,7 +234,7 @@ int main()
      }
   }
 
-  fprintf(stderr, "(%d, %d)\n", max_ind, max_val);
+  printf("%d\n", max_ind);
   //fprintf(stderr, "%d, %d\n", x, y);
 //  printf("%0.6f\n", en - st);
 
