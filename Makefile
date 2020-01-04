@@ -16,8 +16,9 @@ cifar10.wasi: ${C_SRC}
 cifar10.sf: ${C_SRC}
 	mkdir -p ${TMP_DIR}
 	${WASMCC} ${WASMCFLAGS} ${OPTFLAGS} -std=c99 -DARM_MATH_CM3 -ICMSIS_5/CMSIS/DSP/Include -ICMSIS_5/CMSIS/Core/Include -ICMSIS_5/CMSIS/NN/Include -O3 -g3 -Wall -fmessage-length=0 -Wno-unused-function -Wno-unused-variable ${C_SRC} ${DUMMY} -o ${TMP_DIR}/cifar10.sf.out.wasm 
-	${SFCC} ${TMP_DIR}/cifar10.sf.out.wasm -o ${TMP_DIR}/cifar10.sf.out.bc
-	${CC} ${OPTFLAGS} -D${USE_MEM} ${TMP_DIR}/cifar10.sf.out.bc ${MEMC} ${RT_LIBC} ${RT_RT} -o ${TMP_DIR}/cifar10.sf.out
+#	${SFCC} ${TMP_DIR}/cifar10.sf.out.wasm -o ${TMP_DIR}/cifar10.sf.out.bc
+#	${CC} ${OPTFLAGS} -D${USE_MEM} ${TMP_DIR}/cifar10.sf.out.bc ${MEMC} ${RT_LIBC} ${RT_RT} -o ${TMP_DIR}/cifar10.sf.out
+	${SFCC} --inline-constant-globals --runtime-globals ${TMP_DIR}/cifar10.sf.out.wasm -o ${TMP_DIR}/cifar10.sf.out.bc
 	${CC} --shared -fPIC ${OPTFLAGS} -D${USE_MEM} -I${ART_INC} ${TMP_DIR}/cifar10.sf.out.bc ${AMEMC} ${WASMISA} -o ${TMP_DIR}/cifar10.awsm.so
 
 clean:
