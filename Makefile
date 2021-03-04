@@ -1,4 +1,4 @@
-BASE_DIR=../
+BASE_DIR=/sledge/
 include Makefile.inc
 
 WCC=/opt/wasi-sdk/bin/clang
@@ -11,7 +11,7 @@ cifar10: ${C_SRC}
 	clang -std=c99 -DARM_MATH_CM3 -ICMSIS_5/CMSIS/DSP/Include -ICMSIS_5/CMSIS/Core/Include -ICMSIS_5/CMSIS/NN/Include -O3 -g3 -Wall -fmessage-length=0 -Wno-unused-function -Wno-unused-variable -o cifar10.out ${C_SRC}
 
 cifar10.wasi: ${C_SRC}
-	${WCC} ${WCFLAGS} -std=c99 -DARM_MATH_CM3 -ICMSIS_5/CMSIS/DSP/Include -ICMSIS_5/CMSIS/Core/Include -ICMSIS_5/CMSIS/NN/Include -O3 -g3 -Wall -fmessage-length=0 -Wno-unused-function -Wno-unused-variable -o cifar10.wasi.out ${C_SRC} -Wl,--allow-undefined,-z,stack-size=524288,--no-threads,--stack-first,--no-entry,--export-all,--export=main --sysroot=${WSYSROOT}
+	${WCC} ${WCFLAGS} -std=c99 -DARM_MATH_CM3 -ICMSIS_5/CMSIS/DSP/Include -ICMSIS_5/CMSIS/Core/Include -ICMSIS_5/CMSIS/NN/Include -O3 -g3 -Wall -fmessage-length=0 -Wno-unused-function -Wno-unused-variable ${C_SRC} -Wl,--allow-undefined,-z,stack-size=524288,--no-threads,--stack-first,--no-entry,--export-all,--export=main --sysroot=${WSYSROOT} -o cifar10.wasi.out
 
 cifar10.sf: ${C_SRC}
 	mkdir -p ${TMP_DIR}

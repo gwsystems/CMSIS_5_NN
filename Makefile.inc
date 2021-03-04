@@ -15,9 +15,9 @@ RT_LIBC=${RT_DIR}/libc/libc_backing.c
 RT_ENV=${RT_DIR}/libc/env.c
 RT_RT=${RT_DIR}/runtime.c
 
-DUMMY=${BASE_DIR}/code_benches/dummy.c
+DUMMY=${BASE_DIR}/awsm/code_benches/dummy.c
 
-ABASE_DIR=${BASE_DIR}/../
+ABASE_DIR=${BASE_DIR}
 ART_DIR=${ABASE_DIR}/runtime/
 ART_INC=${ART_DIR}/include/
 
