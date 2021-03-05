@@ -151,7 +151,7 @@ int main()
 
 //  printf("%d\n", CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM);
 //
-  int r = read(0, image_data1, CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM), i;
+  int r = read(0, image_data, CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM), i;
   if (r <= 0) {
 	  perror("read");
 	  return 0;
