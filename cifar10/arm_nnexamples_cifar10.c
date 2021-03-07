@@ -121,8 +121,8 @@ static q7_t ip1_bias[IP1_OUT] = IP1_BIAS;
 /* Here the image_data should be the raw uint8 type RGB image in [RGB, RGB, RGB ... RGB] format */
 /* place holder for input. unfortunately cannot get this program to classify correctly the png files from cifar10. Runyu says, we need some special format here, not sure what! They seem to have not verified the output. 
  * It is unclear what IMG_DATA represents and if this program does it right. */
-uint8_t   image_data1[CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM];
-uint8_t   image_data[CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM] = IMG_DATA;
+// uint8_t   image_data1[CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM]=IMG_DATA;
+uint8_t   image_data[CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM];
 q7_t      output_data[IP1_OUT];
 
 //vector buffer: max(im2col buffer,average pool buffer, fully connected buffer)
@@ -150,12 +150,34 @@ int main()
   #endif
 
 //  printf("%d\n", CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM);
-//
-  int r = read(0, image_data, CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM), i;
+
+
+  uint8_t image_header[54];
+  int r = read(0, image_header, 54), i;
+  
   if (r <= 0) {
 	  perror("read");
 	  return 0;
   }
+
+  // printf("r1 is %d and the first two: %c%c\n", r1, image_header[0], image_header[1]);
+
+  r = read(0, image_data, CONV1_IM_CH * CONV1_IM_DIM * CONV1_IM_DIM);
+  if (r <= 0) {
+	  perror("read");
+	  return 0;
+  }
+
+  // printf("r is %d\n", r);
+  // printf("Pixel #3071: %d, %d, %d\n\n", image_data[3069], image_data[3070], image_data[3071]);
+
+  for (i = 0; i < r; i += 3) {
+	  // flip the order of every 3 bytes
+	  unsigned char tmp = image_data[i];
+	  image_data[i]     = image_data[i + 2];
+	  image_data[i + 2] = tmp;
+  }
+
 
   //printf("start execution\n");
   /* start the execution */
@@ -214,27 +236,17 @@ int main()
   arm_softmax_q7(output_data, 10, output_data);
 
 //  en = rtclock();
-//  int x = 0;
-//  int y = 0;
-//
-//  for (int i = 0; i < 10; i++)
-//  {
-//      fprintf(stderr, "%d: %d\n", i, output_data[i]);
-//      if (output_data[i] > x) {
-//    	x = output_data[i];
-//        y = i;
-//      }
-//  }
-  int max_val = -128, max_ind = 0;
-  for (int i = 0; i < IP1_OUT; i++) {
-     //printf("%d: %d\n", i, output_data[i]);
-     if (max_val < output_data[i]) {
-	max_val = output_data[i];
-	max_ind = i;
-     }
+
+  // int max_val = -128, max_ind = 0;
+  for (int i = 0; i < 10; i++) {
+     printf("%d: %d\n", i, output_data[i]);
+  //    if (max_val < output_data[i]) {
+	// max_val = output_data[i];
+	// max_ind = i;
+  //    }
   }
 
-  printf("%d\n", max_ind);
+  // printf("%d\n", max_ind);
   //fprintf(stderr, "%d, %d\n", x, y);
 //  printf("%0.6f\n", en - st);
 
