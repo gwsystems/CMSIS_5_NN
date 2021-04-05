@@ -4,3 +4,7 @@ tmp/
 *_out
 *.o
 *.d
+*.bc
+*.so
+*.out
+*.wasm
