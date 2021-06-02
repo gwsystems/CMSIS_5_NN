@@ -206,25 +206,12 @@ main()
 		return 0;
 	}
 
-	// printf("Pixel #3071: %02X, %02X, %02X\n\n", image_data[3069], image_data[3070], image_data[3071]);
-
+	// Rotate the image upside down, since this is how CMSIS_NN app will process it:
 	for (int i = 0; i < rc/2; i++) {
 		unsigned char tmp = image_data[i];
 		image_data[i]     = image_data[rc-1-i];
 		image_data[rc-1-i] = tmp;
 	}
-
-	// printf("Pixel #0: %02X, %02X, %02X\n\n", image_data[0], image_data[1], image_data[2]);
-
-	// flip the order of every 3 bytes
-	// Emil found this was neccessary
-	// for (int i = 0; i < rc; i += 3) {
-	// 	unsigned char tmp = image_data[i];
-	// 	image_data[i]     = image_data[i + 2];
-	// 	image_data[i + 2] = tmp;
-	// }
-
-	// printf("Pixel #0: %02X, %02X, %02X\n\n", image_data[0], image_data[1], image_data[2]);
 
 	/* start the execution */
 	q7_t *img_buffer1 = scratch_buffer;
